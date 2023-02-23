@@ -236,23 +236,23 @@ void static mergeSort(std::vector<int> &vec) {
 
 
 int partition(std::vector<int> &vec, int low, int high) {
-    int pivot = vec[high];
-    int i = (low - 1);
-    for (int j = low; j <= high - 1; j++) {
-        if (vec[j] < pivot) {
-            i++;
+    int pivot = vec[low];
+    int i = (high+1);
+    for (int j = high; j > low; j--) {
+        if (vec[j] >= pivot) {
+            i--;
             std::swap(vec[i], vec[j]);
         }
     }
-    std::swap(vec[i + 1], vec[high]);
-    return (i + 1);
+    std::swap(vec[i - 1], vec[low]);
+    return (i - 1);
 }
 
 void quickSortWithBorder(std::vector<int> &vec, int left, int right) {
     if (left < right) {
         int pivot_index = partition(vec, left, right);
-        quickSortWithBorder(vec, left, pivot_index - 1);
-        quickSortWithBorder(vec, pivot_index + 1, right);
+        quickSortWithBorder(vec, left, pivot_index-1);
+        quickSortWithBorder(vec, pivot_index+1, right);
     }
 }
 
@@ -313,7 +313,7 @@ void shellSortShellSequence(std::vector<int> &vec) {
 void shellSortCiuraSequence(std::vector<int> &vec) {
     int n = static_cast<int>(vec.size());
     std::vector<int> ciura_sequence = {-1, 1, 4, 10, 23, 57, 132, 301, 701, 1750, 3937, 8853, 19930};
-    auto bound = std::lower_bound(ciura_sequence.begin(), ciura_sequence.end(), n - 1);
+    auto bound = std::lower_bound(ciura_sequence.begin(), ciura_sequence.end(), n-1);
     for (auto step = bound; step != ciura_sequence.begin(); --step) {
         for (int i = *step; i < n; i += 1) {
             int temp = vec[i];

@@ -5,32 +5,37 @@
 #include "Sort.cpp"
 #include "SortWithCountActions.cpp"
 
-void output(std::vector<int> vec) {
+void output(std::vector<int> vec, std::ofstream& stream) {
     for (int i = 0; i < vec.size(); ++i) {
-        std::cout << vec[i];
+        stream << vec[i]<<" ";
     }
-    std::cout << "\n";
 }
 
-bool check(std::vector<int> &vec) {
-    auto trueVec = vec;
+bool check(std::vector<int> &vec, std::vector<int> &sourceVec) {
+    std::ofstream out("check.txt", std::ios::app);
+    output(sourceVec,out);
+    auto trueVec = sourceVec;
+    out<<"|";
+    output(vec,out);
     std::sort(trueVec.begin(), trueVec.end());
     for (int i = 0; i < vec.size(); ++i) {
         if (vec[i] != trueVec[i]) {
+            out<<"::: 0"<<"\n";
             return false;
         }
     }
+    out<<"::: 1"<<"\n";
     return true;
 }
 
 void (*sortFuncs[13])(std::vector<int> &) =
         {selectSort, bubbleSort, bubbleA1Sort, bubbleA12Sort, insertSort, insertBinSort, countSort, radixSort,
-         mergeSort, quickSort, heapSort, shellSortCiuraSequence, shellSortCiuraSequence};
+         mergeSort, quickSort, heapSort, shellSortCiuraSequence, shellSortShellSequence};
 
 void (*sortFuncsWithCountAction[13])(std::vector<int> &) =
         {selectSortAct, bubbleSortAct, bubbleA1SortAct, bubbleA12SortAct, insertSortAct, insertBinSortAct, countSortAct,
          radixSortAct,
-         mergeSortAct, quickSortAct, heapSortAct, shellSortCiuraSequenceAct, shellSortCiuraSequenceAct};
+         mergeSortAct, quickSortAct, heapSortAct, shellSortCiuraSequenceAct, shellSortShellSequenceAct};
 
 std::vector<std::pair<int, bool>> measureByTime(std::vector<std::vector<int>> &nums) {
     int countMeasuring = static_cast<int>(nums.size());
@@ -41,11 +46,12 @@ std::vector<std::pair<int, bool>> measureByTime(std::vector<std::vector<int>> &n
     for (int i = 0; i < countMeasuring; ++i) {
         for (int j = 0; j < 13; ++j) {
             auto nums_of_test = nums[i];
+            auto nums_of_test_for_check = nums[i];
             auto start = std::chrono::high_resolution_clock::now();
             sortFuncs[j](nums_of_test);
             auto elapsed = std::chrono::high_resolution_clock::now() - start;
             int64_t time = std::chrono::duration_cast<std::chrono::nanoseconds>(elapsed).count();
-            result[j].second = check(nums_of_test) && result[j].second;
+            result[j].second = check(nums_of_test,nums_of_test_for_check) && result[j].second;
             result[j].first += time;
         }
     }
@@ -64,10 +70,11 @@ std::vector<std::pair<int, bool>> measureByAction(std::vector<std::vector<int>> 
     for (int i = 0; i < countMeasuring; ++i) {
         for (int j = 0; j < 13; ++j) {
             auto nums_of_test = nums[i];
+            auto nums_of_test_fo_check = nums[i];
             countActions = 0;
             sortFuncsWithCountAction[j](nums_of_test);
             auto sum = countActions;
-            result[j].second = check(nums_of_test) && result[j].second;
+            result[j].second = check(nums_of_test,nums_of_test_fo_check) && result[j].second;
             result[j].first += sum;
         }
     }
@@ -114,7 +121,7 @@ void outputTable(std::vector<std::vector<std::pair<int, bool>>> tableResults) {
     out << "\n";
     for (int i = 0; i < tableResults.size(); ++i) {
         for (int j = 0; j < 13; ++j) {
-            out << tableResults[i][j].first << " " << tableResults[i][j].second << " ";
+            out << tableResults[i][j].first << " " /*<< tableResults[i][j].second << " "*/;
         }
         out << "\n";
     }
@@ -134,7 +141,11 @@ std::vector<std::vector<int>> getPartVector(std::vector<std::vector<int>> &vec, 
 
 int main() {
     srand(4);
-    int num_measuring = 2;
+
+    std::vector<int> v{1,2,5,1,4,9};
+    quickSort(v);
+
+    int num_measuring = 10;
     std::vector<std::vector<int>> vec5(num_measuring);
     std::vector<std::vector<int>> vec4000(num_measuring);
     std::vector<std::vector<int>> vecSorted(num_measuring);

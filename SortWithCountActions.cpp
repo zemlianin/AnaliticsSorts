@@ -335,10 +335,10 @@ void static mergeSortAct(std::vector<int> &vec) {
 
 int partitionAct(std::vector<int> &vec, int low, int high) {
     countActions += 2;
-    int pivot = vec[high];
+    int pivot = vec[low];
     countActions++;
     int i = (low - 1);
-    for (int j = low; j <= high - 1; j++) {
+    for (int j = low+1; j <= high; j++) {
         countActions += 2;
         countActions++;
         if (vec[j] < pivot) {
